@@ -14,6 +14,5 @@ CHIP And16 {
 
     PARTS:
     // Put your code here:
-    i=0;
     And(a=a[i], b=b[i], out=nab);
 }
