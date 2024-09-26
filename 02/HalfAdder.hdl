@@ -5,6 +5,8 @@
 
 /**
  * Computes the sum of two bits.
+ * -x = /x + 1
+ * a - b = a + (-b)
  */
 
 CHIP HalfAdder {
@@ -13,5 +15,10 @@ CHIP HalfAdder {
         carry;  // Left bit of a + b
 
     PARTS:
-    // Put you code here:
+    Not(in=a,out=na);
+    Not(in=b,out=nb);
+    And(a=na,b=b,out=SA);
+    And(a=a,b=nb,out=SB);
+    Or(a=SA,b=SB,out=sum);
+    And(a=a,b=b,out=carry);
 }
