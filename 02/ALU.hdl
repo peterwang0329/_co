@@ -12,6 +12,10 @@
  * In addition, the ALU computes two 1-bit outputs:
  * if the ALU output == 0, zr is set to 1; otherwise zr is set to 0;
  * if the ALU output < 0, ng is set to 1; otherwise ng is set to 0.
+
+ Mux : 
+ sel == 0 => a
+ sel == 1 => b
  */
 
 // Implementation: the ALU logic manipulates the x and y inputs
@@ -42,5 +46,29 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    Mux16(a=x,b=false,sel=zx,out=A);
+    Not16(in=A,out=nA);
+    Mux16(a=A,b=nA,sel=nx,out=lA);
+
+    Mux16(a=y,b=false,sel=zy,out=B);
+    Not16(in=B,out=nB);
+    Mux16(a=B,b=nB,sel=ny,out=lB);
+
+    Add16(a=lA,b=lB,out=Add);
+    And16(a=lA,b=lB,out=And);
+    Mux16(a=And,b=Add,sel=f,out=Ans);
+
+    Not16(in=Ans,out=nAns);
+    Mux16(a=Ans,b=nAns,sel=no,out=out);
+
+    Mux16(a=Ans,b=nAns,sel=no,out[0..7]=zrout1,out[8..15]=zrout2);
+    Or8Way(in=zrout1,out=zrA);
+    Or8Way(in=zrout2,out=zrB);
+    Or(a=zrA,b=zrB,out=nzr); /*如果全部為0,Or輸出為0,只要內容中有一個1,則輸出為1*/
+    Not(in=nzr,out=zr);
+
+    And16(a[0..7]=zrout1,a[8..15]=zrout2,b[0..14]=false,b[15]=true,out[0..7]=Ang,out[8..15]=Bng);
+    Or8Way(in=Bng,out=Ong);
+    Mux(a=false,b=true,sel=Ong,out=ng);
+
 }
