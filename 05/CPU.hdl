@@ -28,7 +28,7 @@
 CHIP CPU {
 
     IN  inM[16],         // M value input  (M = contents of RAM[A])
-        instruction[16], // Instruction for execution
+        instruction[16], // Instruction for execution (ixxaccccccdddjjj)
         reset;           // Signals whether to re-start the current
                          // program (reset==1) or continue executing
                          // the current program (reset==0).
@@ -36,8 +36,37 @@ CHIP CPU {
     OUT outM[16],        // M value output
         writeM,          // Write to M? 
         addressM[15],    // Address in data memory (of M)
-        pc[15];          // address of next instruction
+        pc[15];          // address of next instructions
 
     PARTS:
-    // Put your code here:
+    And16(a=instruction,b=true,
+        out[15]=isC,out[12]=AorM,out[11]=c1,
+        out[10]=c2,out[9]=c3,out[8]=c4,out[7]=c5,out[6]=c6,
+        out[5]=StoA,out[4]=StoD,out[3]=StoM,out[2]=j1,out[1]=j2,out[0]=j3);
+
+    Not(in=isC,out=isA);
+    And(a=isC,b=StoA,out=ALUtoA);
+    Or(a=isA,b=ALUtoA,out=AorC);
+    
+    Mux16(a=instruction,b=out,sel=isC,out=gotoA);
+
+    ARegister(in=gotoA,load=AorC,out=Aout, out[0..14]=addressM);
+
+    And(a=isC, b=StoD, out=Dload);
+    DRegister(in=out,load=Dload,out=Dout);
+
+    Mux16(a=Aout,b=inM,sel=AorM,out=goAorM);
+    ALU(x=Dout,y=goAorM,zx=c1,nx=c2,zy=c3,ny=c4,f=c5,no=c6,out=out,out=outM,zr=zr,ng=ng);
+
+    Or(a=ng, b=zr, out=ngzr); 
+    Not(in=ngzr, out=gt);
+    And(a=j1,b=ng,out=LT);
+    And(a=j2,b=zr,out=EQ);
+    And(a=j3,b=gt,out=GT);
+    Or(a=LT,b=EQ,out=LTEQ);
+    Or(a=GT,b=LTEQ,out=pass);
+    And(a=pass,b=isC,out=jump);
+
+    PC(in=Aout,load=jump,inc=true,reset=reset,out[0..14]=pc);
+    And(a=isC,b=StoM,out=writeM);
 }
