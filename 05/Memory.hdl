@@ -30,8 +30,9 @@ CHIP Memory {
     DMux(in=load,sel=address[14],a=M,b=S); /*0X... 為RAM16K,10... 為Screen, 11000...為Keyboard*/
     And(a=M,b=load,out=Mload);
     And(a=S,b=load,out=Sload);
+
     RAM16K(in=in,load=Mload,address=address[0..13],out=outM);
-    Screen(in=in,load=Sload ,address=address[0..12],out=outS);
+    Screen(in=in,load=Sload,address=address[0..12],out=outS);
     Keyboard(out=outK);
 
     Mux16(a=outS,b=outK,sel=address[13],out=outSK);
