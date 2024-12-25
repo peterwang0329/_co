@@ -8,7 +8,7 @@
 ![](./And.png)
 ### [Or](./Or.hdl)
 ![](./Or.png)
-### [XOr](./XOr.hdl)
+### [Xor](./XOr.hdl)
 ![](./XOr.png)
 ### [Mux](./Mux.hdl)
 ![](./Mux.png)
